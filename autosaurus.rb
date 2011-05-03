@@ -2,6 +2,7 @@ require 'mechanize'
 
 class Autosaurus
   CACHE_FILE = File.join ENV['HOME'], '.autosaurus.yml'
+  WORD_URI   = 'http://www.merriam-webster.com/thesaurus/%s'
   
   def initialize
     @agent = Mechanize.new
@@ -11,6 +12,7 @@ class Autosaurus
   def run *args
     # TODO allow ignoring cache
     # TODO support for related words as well
+    # TODO decline and conjugate to find synonyms for plurals, past tenses &c.
     puts args.map { |text| transform text }
   ensure
     File.open(CACHE_FILE, 'w') { |io| YAML.dump @cache, io }
@@ -46,7 +48,7 @@ class Autosaurus
     synonyms = @cache[word.downcase] || []
     return synonyms unless synonyms.empty?
     
-    page = @agent.get "http://www.merriam-webster.com/thesaurus/#{word}"
+    page = @agent.get WORD_URI % word
     page.search('//*[text()="Synonyms"]').each do |node|
       text = node.search('./following-sibling::node()/descendant-or-self::text()').text
       synonyms |= text.split(/,\s*/).map! do |word|
