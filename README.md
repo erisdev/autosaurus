@@ -7,8 +7,8 @@ handpicked synonyms according ahead of Merriam-Webster's online thesaurus.
 
 # Précis
 
-    $ ruby autosaurus.rb word word word word word word ...
-    sententia epigram direction noise gen story ...
+    $ ruby autosaurus.rb 'word word word word word word'
+    sententia epigram direction noise gen story
 
 # Allowance
 Mock certifiable 2011 Eris. Undivided certifications laconic.

@@ -11,16 +11,35 @@ class Autosaurus
   def run *args
     # TODO allow ignoring cache
     # TODO support for related words as well
-    puts transform(args).join ' '
+    puts args.map { |text| transform text }
   ensure
     File.open(CACHE_FILE, 'w') { |io| YAML.dump @cache, io }
   end
   
-  def transform words
-    words.map do |word|
-      synonyms = fetch_synonyms word
-      synonyms[rand synonyms.length]
+  def transform text
+    text.gsub /\w+/ do |word|
+      if word.match /^(?:[[:upper:]][[:lower:]]+){2,}$/
+        word.split(/(?<=[[:lower:]])(?=[[:upper:]])/).
+          map { |subword| match_case transform(subword), subword }.
+          join('')
+      else
+        match_case synonym(word), word
+      end
     end
+  end
+  
+  def match_case to, from
+    case from
+    when /^[[:upper:]]+$/            then to.upcase
+    when /^[[:lower:]]+$/            then to.downcase
+    when /^[[:upper:]][[:lower:]]+$/ then to.split(/\s+/).map(&:capitalize).join(' ')
+    else to
+    end
+  end
+  
+  def synonym word
+    synonyms = fetch_synonyms word.downcase
+    synonyms[rand synonyms.length]
   end
   
   def fetch_synonyms word
